@@ -16,7 +16,6 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      flex-direction: column;
     }
     .quiz-box {
       background: #222;
@@ -29,11 +28,23 @@
       box-shadow: 0 0 25px #ff69b4;
       animation: fadeIn 1s ease-in;
       position: relative;
-      z-index: 1;
+    }
+    .intro-text {
+      font-size: 1.1em;
+      margin-bottom: 25px;
+      color: #ff9de2;
+      font-weight: bold;
+      text-shadow: 0 0 5px #ff69b4;
+    }
+    .warning-text {
+      font-size: 0.9em;
+      color: #ff5588;
+      margin-bottom: 35px;
+      font-style: italic;
     }
     .question {
       font-size: 1.8em;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       min-height: 80px;
     }
     .btn {
@@ -56,32 +67,6 @@
       margin-top: 20px;
       color: #fff;
     }
-    #inputAnswer {
-      margin-top: 15px;
-      padding: 10px;
-      width: 80%;
-      font-size: 1.1em;
-      border-radius: 10px;
-      border: 2px solid #ff69b4;
-      background: #333;
-      color: #fff;
-      outline: none;
-    }
-    #warning {
-      color: #ff4444;
-      margin-top: 10px;
-      font-weight: bold;
-      min-height: 20px;
-    }
-    .info-box {
-      max-width: 600px;
-      margin-bottom: 20px;
-      color: #ff69b4;
-      font-size: 1.2em;
-      font-style: italic;
-      text-align: center;
-      user-select: none;
-    }
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -97,22 +82,16 @@
       top: 0;
       left: 0;
       pointer-events: none;
-      z-index: 0;
     }
   </style>
 </head>
 <body>
-  <div class="info-box">
-    เว็บนี้เป็นแบบทดสอบง่ายๆ เพื่อดูว่าคุณเป็นสาววายมากแค่ไหน  
-    <br>กูสาบานกูไม่ได้เก็บข้อมูลไว้ 🛡️
-  </div>
-
   <canvas id="fireworks"></canvas>
 
   <div class="quiz-box" id="quizBox">
+    <div class="intro-text">แบบทดสอบ: คุณเป็นสาววายหรือไม่? (20 คำถาม)</div>
+    <div class="warning-text">กูสาบานกูไม่ได้เก็บข้อมูลไว้ — แค่สนุกๆ เท่านั้นนะ!</div>
     <div class="question" id="questionText"></div>
-    <input type="text" id="inputAnswer" placeholder="กรุณาพิมพ์คำตอบที่นี่..." style="display:none" />
-    <div id="warning"></div>
     <div id="buttons">
       <button class="btn" onclick="answer(true)">ใช่</button>
       <button class="btn" onclick="answer(false)">ไม่ใช่</button>
@@ -125,7 +104,7 @@
       "คุณเคยจิ้นเพื่อนผู้ชายสองคนไหม?",
       "คุณเคยอ่านการ์ตูนวายมาก่อนหรือเปล่า?",
       "คุณรู้สึกฟินเมื่อเห็นตัวละครชายใกล้ชิดกันหรือไม่?",
-      "คุณตั้งชื่อคู่ชิปเองไหม?",  // ต้องพิมพ์ถ้าตอบใช่
+      "คุณตั้งชื่อคู่ชิปเองไหม?",
       "คุณเคยดูซีรีส์วายมากกว่า 3 เรื่องไหม?",
       "คุณเคยเขียนฟิควายไหม?",
       "คุณรู้จักคำว่า uke/seme หรือไม่?",
@@ -135,7 +114,7 @@
       "คุณเคยสลับบทบาท seme กับ uke ในจินตนาการไหม?",
       "คุณเคยติดตามนักพากย์เสียงชายในอนิเมะวายไหม?",
       "คุณเคยจิ้นตัวละครชายที่ไม่มีคู่ในเรื่องไหม?",
-      "คุณชอบเพลงประกอบซีรีส์วายมากกว่าซีรีส์ทั่วไปไหม?", // ต้องพิมพ์ถ้าตอบใช่
+      "คุณชอบเพลงประกอบซีรีส์วายมากกว่าซีรีส์ทั่วไปไหม?",
       "คุณเคยแอบดูซีรีส์วายแบบลับๆ หรือปกปิดไหม?",
       "คุณมีสติ๊กเกอร์หรือไอเท็มวายในโทรศัพท์ไหม?",
       "คุณเคยตั้งกลุ่มแชทสำหรับแฟนวายไหม?",
@@ -144,61 +123,22 @@
       "คุณเคยแต่งชุดคอสเพลย์ตัวละครชายจากเรื่องวายไหม?"
     ];
 
-    // ข้อความแสดงผลที่ต้องการใส่ข้อความก่อนถึงไปต่อได้
-    const needInputIndexes = [3, 13];  // index คำถามที่ต้องพิมพ์ตอบ (เลข 0-based)
-
     let current = 0;
     let score = 0;
 
     const questionText = document.getElementById("questionText");
     const resultText = document.getElementById("resultText");
-    const inputAnswer = document.getElementById("inputAnswer");
-    const warning = document.getElementById("warning");
-    const buttonsDiv = document.getElementById("buttons");
 
     function showQuestion() {
-      warning.innerText = "";
-      inputAnswer.style.display = "none";
-      inputAnswer.value = "";
       questionText.innerText = `${current + 1}. ${questions[current]}`;
-
-      // ถ้าข้อนี้ต้องกรอกข้อความตอนตอบ "ใช่" ให้แสดงช่อง input
-      if (needInputIndexes.includes(current)) {
-        inputAnswer.style.display = "none"; // แรกๆ ซ่อนก่อนรอว่าตอบใช่หรือไม่
-      }
     }
 
     function answer(isYes) {
-      warning.innerText = "";
-
-      // ถ้าข้อนี้เป็นข้อที่ต้องกรอกข้อความตอนตอบใช่
-      if (needInputIndexes.includes(current)) {
-        if (isYes) {
-          // แสดง input ถ้ายังไม่แสดง แล้วบังคับให้กรอกก่อน
-          if (inputAnswer.style.display === "none") {
-            inputAnswer.style.display = "block";
-            warning.innerText = "กรุณาพิมพ์คำตอบก่อนกดใช่อีกครั้ง";
-            return; // รอให้กรอกก่อน
-          }
-          if (inputAnswer.value.trim() === "") {
-            warning.innerText = "กรุณาพิมพ์คำตอบก่อนกดใช่อีกครั้ง";
-            return;
-          }
-        } else {
-          // ถ้ากดไม่ใช่ ไม่ต้องกรอก ก็ไปต่อได้เลย
-          inputAnswer.style.display = "none";
-        }
-      }
-
-      // คำนวณคะแนน
       if (isYes) score++;
-
       current++;
-
       if (current < questions.length) {
-        // รีเซ็ตแอนิเมชัน
         questionText.style.animation = 'none';
-        void questionText.offsetWidth;
+        void questionText.offsetWidth; // รีเซ็ตแอนิเมชัน
         questionText.style.animation = 'fadeIn 0.8s ease-in';
         showQuestion();
       } else {
@@ -207,9 +147,7 @@
     }
 
     function showResult() {
-      buttonsDiv.style.display = "none";
-      inputAnswer.style.display = "none";
-
+      document.getElementById("buttons").style.display = "none";
       if (score >= 18) {
         resultText.innerHTML = `🎉 คุณได้ ${score}/${questions.length} คะแนน<br>✨ สาววายขั้นเทพ! ✨`;
         launchFireworks();
