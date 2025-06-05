@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>คุณเป็นสาววายหรือไม่? (20 คำถาม)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sriracha&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sriracha', cursive;
+      background-color: #111;
+      color: #ffbdf0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .quiz-box {
+      background: #222;
+      border: 3px solid #ff69b4;
+      border-radius: 20px;
+      padding: 40px;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 0 25px #ff69b4;
+      animation: fadeIn 1s ease-in;
+    }
+    .question {
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      min-height: 80px;
+    }
+    .btn {
+      background-color: #ff69b4;
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      margin: 10px;
+      border-radius: 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background-color: #ff1493;
+      transform: scale(1.05);
+    }
+    .result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      color: #fff;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+
+  <div class="quiz-box" id="quizBox">
+    <div class="question" id="questionText"></div>
+    <div id="buttons">
+      <button class="btn" onclick="answer(true)">ใช่</button>
+      <button class="btn" onclick="answer(false)">ไม่ใช่</button>
+    </div>
+    <div class="result" id="resultText"></div>
+  </div>
+
+  <script>
+    const questions = [
+      "คุณเคยจิ้นเพื่อนผู้ชายสองคนไหม?",
+      "คุณเคยอ่านการ์ตูนวายมาก่อนหรือเปล่า?",
+      "คุณรู้สึกฟินเมื่อเห็นตัวละครชายใกล้ชิดกันหรือไม่?",
+      "คุณตั้งชื่อคู่ชิปเองไหม?",
+      "คุณเคยดูซีรีส์วายมากกว่า 3 เรื่องไหม?",
+      "คุณเคยเขียนฟิควายไหม?",
+      "คุณรู้จักคำว่า uke/seme หรือไม่?",
+      "คุณเคยวาดแฟนอาร์ตวายไหม?",
+      "คุณเคยกรี๊ดออกมาเมื่อเห็นชายสองคนมองตากัน?",
+      "คุณเคยซื้อของที่ระบุว่าคือคู่วายไหม?",
+      "คุณเคยสลับบทบาท seme กับ uke ในจินตนาการไหม?",
+      "คุณเคยติดตามนักพากย์เสียงชายในอนิเมะวายไหม?",
+      "คุณเคยจิ้นตัวละครชายที่ไม่มีคู่ในเรื่องไหม?",
+      "คุณชอบเพลงประกอบซีรีส์วายมากกว่าซีรีส์ทั่วไปไหม?",
+      "คุณเคยแอบดูซีรีส์วายแบบลับๆ หรือปกปิดไหม?",
+      "คุณมีสติ๊กเกอร์หรือไอเท็มวายในโทรศัพท์ไหม?",
+      "คุณเคยตั้งกลุ่มแชทสำหรับแฟนวายไหม?",
+      "คุณรู้จักคำว่า “BL” และใช้มันอย่างภาคภูมิใจไหม?",
+      "คุณชอบแฟชั่นที่ได้รับแรงบันดาลใจจากตัวละครวายไหม?",
+      "คุณเคยแต่งชุดคอสเพลย์ตัวละครชายจากเรื่องวายไหม?"
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    const questionText = document.getElementById("questionText");
+    const resultText = document.getElementById("resultText");
+
+    function showQuestion() {
+      questionText.innerText = `${current + 1}. ${questions[current]}`;
+    }
+
+    function answer(isYes) {
+      if (isYes) score++;
+      current++;
+      if (current < questions.length) {
+        questionText.style.animation = 'none';
+        void questionText.offsetWidth; // รีเซ็ตแอนิเมชัน
+        questionText.style.animation = 'fadeIn 0.8s ease-in';
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById("buttons").style.display = "none";
+      if (score >= 18) {
+        resultText.innerHTML = `🎉 คุณได้ ${score}/${questions.length} คะแนน<br>✨ สาววายขั้นเทพ! ✨`;
+        launchFireworks();
+      } else if (score >= 14) {
+        resultText.innerHTML = `💖 คุณเป็นสาววายเต็มใจ! ได้ ${score}/${questions.length}`;
+      } else if (score >= 8) {
+        resultText.innerHTML = `😊 คุณมีใจสายวายอยู่บ้าง ได้ ${score}/${questions.length}`;
+      } else {
+        resultText.innerHTML = `😅 คุณอาจยังไม่ใช่สาววาย... หรือแค่ปิดบังอยู่? ได้ ${score}/${questions.length}`;
+      }
+    }
+
+    showQuestion();
+
+    // 🎆 Firework Effect
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let fireworks = [];
+
+    function launchFireworks() {
+      for (let i = 0; i < 20; i++) {
+        fireworks.push({
+          x: canvas.width / 2,
+          y: canvas.height,
+          vx: (Math.random() - 0.5) * 8,
+          vy: -Math.random() * 10 - 5,
+          life: 100,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`
+        });
+      }
+      animateFireworks();
+    }
+
+    function animateFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fireworks.forEach((f, index) => {
+        f.x += f.vx;
+        f.y += f.vy;
+        f.vy += 0.2;
+        f.life -= 1;
+
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = f.color;
+        ctx.fill();
+
+        if (f.life <= 0) fireworks.splice(index, 1);
+      });
+
+      if (fireworks.length > 0) {
+        requestAnimationFrame(animateFireworks);
+      }
+    }
+  </script>
+</body>
+</html>
